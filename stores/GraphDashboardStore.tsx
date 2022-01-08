@@ -19,177 +19,91 @@ type Node = d3NodeExtra & {
     label: string,
     date: string,
     score: number
+    importantNodes?: string[]
 }
 
 type Edge = {
     target: string | Node,
     source: string | Node,
-    value: number | Node,
+    value: string,
 }
 // @ts-ignore
 export {Edge, Node};
 
-let nodes:Node[] = [
-    {
-    id: "mammal",
-    label: "Mammals",
-    date: "12.01.2021",
-    score: 0.1
-},
-    {
-        id: "dog",
-        label: "Dogs",
-        date: "12.02.2021",
-        score: 0.4
-    },
-    {
-        id: "cat",
-        label: "Cats",
-        date: "18.02.2021",
-        score: 0.6
-    },
-    {
-        id: "fox",
-        label: "Foxes",
-        date: "01.03.2021",
-        score: 0.1
-    },
-    {
-        id: "elk",
-        label: "Elk",
-        date: "05.08.2021",
-        score: 0.9
-    },
-    {
-        id: "insect",
-        label: "Insects",
-        date: "09.08.2021",
-        score: 0.65
-    },
-    {
-        id: "ant",
-        label: "Ants",
-        date: "17.09.2021",
-        score: 0.1
-    },
-    {
-        id: "bee",
-        label: "Bees",
-        date: "26.09.2021",
-        score: 0.47
-    },
-    {
-        id: "fish",
-        label: "Fish",
-        date: "12.10.2021",
-        score: 0.24
-    },
-    {
-        id: "carp",
-        label: "Carp",
-        date: "12.12.2021",
-        score: 0.74
-    },
-    {
-        id: "pike",
-        label: "Pikes",
-        date: "22.12.2021",
-        score: 0.99
-    }
-]
+let data = require('./data.json');
+
+let nodes:Node[] = data.nodes;
 export {nodes};
 
-let edges:Edge[] = [
-    {
-    target: "mammal",
-    source: "dog",
-    value: 12345
-},
-    {
-        target: "mammal",
-        source: "cat",
-        value: 12345
-
-    },
-    {
-        target: "mammal",
-        source: "fox",
-        value: 12345
-
-    },
-    {
-        target: "mammal",
-        source: "elk",
-        value: 12345
-
-    },
-    {
-        target: "insect",
-        source: "ant",
-        value: 54321
-
-    },
-    {
-        target: "insect",
-        source: "bee",
-        value: 54321
-
-    },
-    {
-        target: "fish",
-        source: "carp",
-        value: 54321
-    },
-    {
-        target: "fish",
-        source: "pike",
-        value: 12345
-
-    },
-    {
-        target: "cat",
-        source: "elk",
-        value: 12345
-
-    },
-    {
-        target: "carp",
-        source: "ant",
-        value: 54321
-    },
-    {
-        target: "elk",
-        source: "bee",
-        value: 12345
-
-    },
-    {
-        target: "dog",
-        source: "cat",
-        value: 54321
-    },
-    {
-        target: "fox",
-        source: "ant",
-        value: 54321
-    },
-    {
-        target: "pike",
-        source: "cat",
-        value: 54321
-    }
-]
+let edges:Edge[] = data.edges;
 export {edges};
 
 export class GraphDashboardStore {
 
-    @observable activeNodes: number[] = observable([]);
-    @observable disabledNodes: number[] = observable([]);
-    @observable clickedNodes: number[]  = observable([]); //toDo: seleced Node
+    @observable activeNodes: string[] = observable([]);
+    @observable disabledNodes: string[] = observable([]);
+    @observable clickedNodes: string[]  = observable([]); //toDo: selected Node
 
-    @observable clickedEdge = null;
-    @observable highlightNode = null;
-    @observable selectedDate = null;
+    @observable clickedEdge:string|null = null;
+
+    @observable highlightNode:string|null = null;
+    @observable selectedDate:string|null = null;
+
+    @observable mode:number = 0;
+
+    @action
+    setPredictionMode(mode: number){
+        console.log(mode)
+        this.mode = mode;
+        console.log(this.mode)
+    }
+
+    @action
+    pushClickedNode(nodeID:string){
+        this.clickedNodes.push(nodeID);
+    }
+
+    @action
+    removeClickedNode(index:number){
+        this.clickedNodes.splice(index, 1);
+    }
+
+    @action
+    resetClickedNodes(){
+        this.clickedNodes = [];
+    }
+
+    @action
+    pushActiveNode(nodeID:string){
+        this.activeNodes.push(nodeID);
+    }
+
+    @action
+    removeActiveNode(index:number){
+        this.activeNodes.splice(index,1);
+    }
+
+    @action
+    resetActiveNodes(){
+        this.activeNodes = [];
+    }
+
+    @action
+    setHighlightNode(nodeID:string|null){
+        this.highlightNode = nodeID;
+    }
+
+    @action
+    setClickedEdge(edgeId:string|null){
+        this.clickedEdge = edgeId;
+    }
+
+    @action
+    resetEdgeNodeSettings() {
+        this.activeNodes = [];
+        this.clickedEdge = null;
+        this.clickedNodes = [];
+    }
 
     constructor() {
         makeObservable(this);

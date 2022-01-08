@@ -1,9 +1,9 @@
 import {inject, observer} from "mobx-react";
 import {GraphDashboardStore, edges, nodes, Edge, Node} from "../stores/GraphDashboardStore";
-import React, {Component, ReactElement, useEffect} from "react";
+import React, {Component} from "react";
 import * as d3 from "d3";
 import {ForceLink} from "d3";
-import {render} from "react-dom";
+import {Colors} from "../styles/Colors";
 React.useLayoutEffect = React.useEffect
 
 type props = {
@@ -18,45 +18,192 @@ class Graph extends Component<props> {
     nodeElements: any;
     textElements: any;
 
+    // Node functions
+    getNodeColor(nodeID: string) {
+        if (this.isNodeDisabled(nodeID)) return Colors.NODE_INACTIVE_COLOR;
+        if (this.isNodeActive(nodeID)) return Colors.NODE_ACTIVE_COLOR;
+        return 'gray'
+    }
+
+    getNodeRadius(node: Node){
+        if(this.props.graphDashboardStore?.mode){
+            return 10 + node.score * 12;
+        }
+        return 10;
+    }
+
+    isNodeDisabled(nodeID: string){
+        return this.props.graphDashboardStore!.disabledNodes.indexOf(nodeID) != -1;
+
+    }
+
+    isNodeActive(nodeID: string){
+        return (this.props.graphDashboardStore!.activeNodes.length === 0 || this.props.graphDashboardStore!.activeNodes!.indexOf(nodeID) > -1)
+            && !this.isNodeDisabled(nodeID);
+
+    }
+
+    isNodeHighlight(nodeID: string){
+        return nodeID === this.props.graphDashboardStore?.highlightNode && this.isNodeActive(nodeID);
+    }
+
+    shiftClickNode(nodeID: string) {
+        const clickedNodesIdx = this.props.graphDashboardStore?.clickedNodes.indexOf(nodeID);
+        const activeNodesIdx = this.props.graphDashboardStore?.activeNodes.indexOf(nodeID);
+
+        if (activeNodesIdx == -1) {
+            if (clickedNodesIdx == -1) {
+                this.props.graphDashboardStore?.pushClickedNode(nodeID);
+                this.props.graphDashboardStore?.pushActiveNode(nodeID);
+            } else {
+                if (typeof clickedNodesIdx === "number") {
+                    this.props.graphDashboardStore?.removeClickedNode(clickedNodesIdx);
+                }
+            }
+        } else {
+            if (typeof activeNodesIdx === "number") {
+                this.props.graphDashboardStore?.removeActiveNode(activeNodesIdx);
+            }
+        }
+        this.redrawElements()
+    }
+
+    clickNode(node: Node) {
+        if(!this.props.graphDashboardStore?.mode){
+            this.props.graphDashboardStore?.resetEdgeNodeSettings();
+            this.props.graphDashboardStore?.pushClickedNode(node.id);
+            this.props.graphDashboardStore?.pushActiveNode(node.id);
+            this.setNeighborsActive(node.id);
+        }
+        else{
+            this.props.graphDashboardStore?.resetEdgeNodeSettings();
+            this.props.graphDashboardStore?.pushActiveNode(node.id);
+            this.props.graphDashboardStore?.setHighlightNode(node.id);
+            if(node.importantNodes && node.importantNodes?.length > 0){
+                node.importantNodes.forEach((nodeID:string)=>{
+                    console.log(nodeID)
+                    this.props.graphDashboardStore?.pushActiveNode(nodeID);
+                });
+            }
+        }
+        this.redrawElements()
+    }
+
+    resetClickNode() {
+        this.props.graphDashboardStore?.resetClickedNodes();
+        this.props.graphDashboardStore?.resetActiveNodes();
+        this.redrawElements()
+    }
+
+    // Edge functions
+
+    clickEdge(edgeID:string) {
+        this.props.graphDashboardStore?.resetEdgeNodeSettings();
+        this.props.graphDashboardStore?.setClickedEdge(edgeID);
+        edges.map((edge) => {
+            if (edge.value === edgeID && typeof edge.source !== "string" && typeof edge.target !== "string") {
+                this.props.graphDashboardStore?.pushActiveNode(edge.source.id);
+                this.props.graphDashboardStore?.pushActiveNode(edge.target.id);
+            }
+        })
+        this.redrawElements()
+    }
+
+    getEdgeColor(edge:Edge) {
+        let color = '246,174,45';
+        if (edge.value == "12345") {
+            color = '242,100,25'
+        }
+        if (this.props.graphDashboardStore?.activeNodes.length === 0 && this.props.graphDashboardStore?.disabledNodes.length === 0) {
+            return `rgba(${color}, 1)`
+        }
+        return this.isNeighborLink(edge) ? `rgba(${color}, 1)` : `rgba(${color},0.2)`
+    }
+
+    //Neighbors
+
+    setNeighborsActive(nodeID: string) {
+        edges.map((edge) => {
+            if(typeof edge.target !== "string" && typeof edge.source !== "string"){
+                if (edge.target.id === nodeID) {
+                    this.props.graphDashboardStore?.pushActiveNode(edge.source.id)
+                } else if (edge.source.id === nodeID) {
+                    this.props.graphDashboardStore?.pushActiveNode(edge.target.id)
+                }
+            }
+        })
+    }
+
+    isNeighborLink(edge: Edge) {
+        let clickedNodes = this.props.graphDashboardStore?.clickedNodes!;
+        let clickedEdge = this.props.graphDashboardStore?.clickedEdge!;
+        if(typeof edge.target !== "string" && typeof edge.source !== "string"){
+            return this.isNodeActive(edge.target.id) && this.isNodeActive(edge.source.id) && (clickedNodes.length === 0 ||
+                    (clickedNodes.indexOf(edge.target.id) > -1 || clickedNodes.indexOf(edge.source.id) > -1)) &&
+                    (clickedEdge === null || clickedEdge === edge.value);
+        }
+        return false;
+    };
+
+    // Text functions
+    getTextColor(nodeID:string) {
+        if(this.isNodeDisabled(nodeID)){
+            return Colors.TEXT_DISABLED;
+        }
+        else if (this.props.graphDashboardStore?.activeNodes.length === 0) {
+            return Colors.TEXT_ACTIVE
+        } else if (this.isNodeActive(nodeID)) {
+            return Colors.TEXT_ACTIVE
+        }
+        return Colors.TEXT_INACTIVE
+    }
+
     constructor(props:props) {
         super(props);
     }
 
     redrawElements() {
-        this.nodeElements.attr("stroke-width", function(node:Node) {
-            //return isNodeHighlight(d.id) ? 3 : 0;
-            return 0;
+        this.nodeElements.attr("stroke-width", (node: Node) => {
+            return this.isNodeHighlight(node.id) ? 3 : 0;
         })
-        this.nodeElements.attr('fill', function(node:Node) {
-            return "black";
-            //return getNodeColor(node.id)
+        this.nodeElements.attr("r", (node:Node) => {
+                return this.getNodeRadius(node)
         })
-        this.textElements.attr('fill', function(node:Node) {
-            return "black";
-            //return getTextColor(node.id)
+
+        this.nodeElements.attr('fill', (node: Node) => {
+            return this.getNodeColor(node.id)
         })
-        this.edgeElements.attr('stroke', function(edge:Edge) {
-            return "black";
-            //return getLinkColor(edge)
+        this.textElements.attr('fill', (node: Node) => {
+            return this.getTextColor(node.id)
         })
-        //dateElements.attr('stroke', function(date:Date) {
-            //if (date.date === selectedDate) return "#080808"
-            //return "white";
-        //    return "#080808"
-        //})
+        this.edgeElements.attr('stroke', (edge: Edge) => {
+            return this.getEdgeColor(edge)
+        })
     }
 
     componentDidMount() {
-        let width = 600;
+        let isNodeHighlightProxy = (nodeId:string) => this.isNodeHighlight(nodeId);
+        let isNodeDisabledProxy = (nodeId:string) => this.isNodeDisabled(nodeId);
+        let shiftClickNodeProxy = (nodeId:string) => this.shiftClickNode(nodeId);
+        let clickNodeProxy = (node:Node) => this.clickNode(node);
+        let getNodeRadiusProxy = (node:Node) => this.getNodeRadius(node);
+        let predictionMode = ()=>this.props.graphDashboardStore?.mode === 1;
+
+        let width = 800;
         let height = 600;
         let svg = d3.select('#graph')
-        svg.attr('width', width).attr('height', height)
+        svg.attr('width', width).attr('height', height).on('click', () => {
+            if (this.props.graphDashboardStore?.clickedNodes.length! > 0 || this.props.graphDashboardStore?.clickedEdge! != null || this.props.graphDashboardStore?.mode) {
+                this.resetClickNode()
+                this.props.graphDashboardStore?.setClickedEdge(null);
+                this.props.graphDashboardStore?.setHighlightNode(null);
+                this.redrawElements();
+            }});
 
         // simulation setup with all forces
         let linkForce = d3
             .forceLink()
-            .id(function(link) {
-                // @ts-ignore
+            .id(function(link:any) {
                 return link.id
             })
         let simulation = d3.forceSimulation(nodes)
@@ -67,26 +214,25 @@ class Graph extends Component<props> {
 
         simulation.force<ForceLink<any, any>>("link")?.links(edges);
         simulation.stop();
-        simulation.tick(300);
+        simulation.tick(500);
 
-        let dragDrop = d3.drag().on('start', function(node) {
-            //if (isNodeHighlight(node.id)) tooltipMouseleave(node);
-            node.fx = node.x
-            node.fy = node.y
-        }).on('drag', function(event, node) {
+        let dragDrop = d3.drag()
+            .on('start', function(event, node:any) {
+            if (isNodeHighlightProxy(node.id)){
+                tooltipMouseleave(node);
+            }
+            node.fx = node.x;
+            node.fy = node.y;
+        }).on('drag', function(event, node:any) {
             simulation.alphaTarget(0).restart()
-            // @ts-ignore
             node.fx = event.x
-            // @ts-ignore
             node.fy = event.y
-        }).on('end', function(event, node) {
-            //if (isNodeHighlight(node.id)) tooltipMouseover(node);
+        }).on('end', function(event, node:any) {
+            if (isNodeHighlightProxy(node.id)) tooltipMouseover(node);
             if (event.active) {
                 simulation.alphaTarget(0)
             }
-            // @ts-ignore
             node.fx = null
-            // @ts-ignore
             node.fy = null
         })
 
@@ -108,7 +254,11 @@ class Graph extends Component<props> {
                 return typeof d.target !== "string" && d.target.y ? d.target.y : 0;
             })
             .attr("stroke-width", 4)
-            .attr("stroke", "blue")
+            .attr("stroke", (edge:Edge) => this.getEdgeColor(edge))
+            .on('click', (event, edge)=> {
+                this.clickEdge(edge.value);
+                event.stopPropagation();
+            })
 
         this.nodeElements = svg.append("g")
             .attr("class", "nodes")
@@ -123,22 +273,40 @@ class Graph extends Component<props> {
             .attr("cy", function(d) {
                 return d.y!;
             })
-            .attr("r", 10)
-            .attr("fill", "red")
+            .attr("r", function(node:Node){
+                return getNodeRadiusProxy(node);
+            })
+            .attr("fill", Colors.NODE_ACTIVE_COLOR)
             .attr("stroke-width", 0)
             .attr("stroke", "#303030")
             // @ts-ignore
             .call(dragDrop)
+            .on('click', function(event, node:Node) {
+                event.stopPropagation();
+                if(!predictionMode()){
+                    if (isNodeDisabledProxy(node.id)) {
+                        return;
+                    }
+                    if (event.shiftKey) {
+                        shiftClickNodeProxy(node.id);
+                    } else {
+                        clickNodeProxy(node)
+                    }
+                }
+                else{
+                    clickNodeProxy(node)
+                }
+            })
             .on("mouseenter", (event, node:Node) => {
-                //if (isNodeActive(node.id) && !d3.event.shiftKey) {
+                if (this.isNodeActive(node.id) && !event.shiftKey) {
                     tooltipMouseover(node)
-                //}
-                //highlightNode = node.id;
+                }
+                if (!this.props.graphDashboardStore?.mode || (this.props.graphDashboardStore?.mode && this.props.graphDashboardStore.activeNodes.length == 0)) this.props.graphDashboardStore?.setHighlightNode(node.id);
                 this.redrawElements();
             })
             .on("mouseleave", (event,node:Node) => {
                 tooltipMouseleave(node)
-                //highlightNode = null;
+                if (!this.props.graphDashboardStore?.mode || (this.props.graphDashboardStore?.mode && this.props.graphDashboardStore.activeNodes.length == 0)) this.props.graphDashboardStore?.setHighlightNode(null);
                 this.redrawElements();
             })
 
@@ -149,7 +317,7 @@ class Graph extends Component<props> {
             .enter()
             .append("text")
             .text(function(node) {
-                return node.label
+                return node.id
             })
             .attr('x', function(node) {
                 return node.x!
@@ -158,7 +326,9 @@ class Graph extends Component<props> {
                 return node.y!
             })
             .attr("font-size", 15)
-            .attr("dx", 15)
+            .attr("dx", function(node) {
+                return 15 + getNodeRadiusProxy(node) / 2!
+            })
             .attr("dy", 4)
             .style("background-color", "white")
 
@@ -223,12 +393,12 @@ class Graph extends Component<props> {
                 .style("stroke", "black")
                 .style("opacity", 1)
                 .style("z-index", 10)
-                .html(`Schadenfall: ${node.id}  <br> Name: ${node.label}`);
+                .html(`Schadenfall: ${node.id}  <br> Name: ${node.label} ${predictionMode()? ("<br> Score: " + node.score):""}`);
             Tooltip
                 // @ts-ignore
                 .style("left", ((node.x!) - (Tooltip._groups[0][0].offsetWidth / 2) + "px"))
                 // @ts-ignore
-                .style("top", (node.y! - 20 - Tooltip._groups[0][0].offsetHeight) + "px");
+                .style("top", (node.y! - getNodeRadiusProxy(node) - 10  - Tooltip._groups[0][0].offsetHeight) + "px");
         }
         let tooltipMouseleave = function(node:Node) {
             Tooltip
@@ -239,9 +409,16 @@ class Graph extends Component<props> {
         }
     }
 
+    componentDidUpdate() {
+        console.log("cool")
+        this.redrawElements();
+    }
+
     render(){
+        let store = this.props.graphDashboardStore?.mode
+        console.log(store)
         return <div id="graphBackground">
-            <svg id="graph"></svg>
+            <svg id="graph"/>
         </div>
     }
 }

@@ -1,0 +1,161 @@
+{
+  "nodes": [
+    {
+      "id": "81143",
+      "label": "Anja Schulz",
+      "date": "12.01.2021",
+      "score": 0.1,
+      "importantNodes": ["13490", "88803", "96926"]
+    },
+    {
+      "id": "51217",
+      "label": "Sven Dresner",
+      "date": "12.02.2021",
+      "score": 0.4,
+      "importantNodes": ["81143", "96926", "13278"]
+    },
+    {
+      "id": "96926",
+      "label": "Angelika Theiss",
+      "date": "18.02.2021",
+      "score": 0.6,
+      "importantNodes": ["51217", "70333"]
+    },
+    {
+      "id": "13490",
+      "label": "Martin Zimmerman",
+      "date": "01.03.2021",
+      "score": 0.1,
+      "importantNodes": ["81143"]
+    },
+    {
+      "id": "13278",
+      "label": "Leon Moench",
+      "date": "05.08.2021",
+      "score": 0.9,
+      "importantNodes": ["96926", "81143"]
+    },
+    {
+      "id": "86581",
+      "label": "Sebastian Ebersbach",
+      "date": "09.08.2021",
+      "score": 0.65,
+      "importantNodes": ["20888", "88803"]
+    },
+    {
+      "id": "88803",
+      "label": "Matthias Schaefer",
+      "date": "17.09.2021",
+      "score": 0.1,
+      "importantNodes": ["81143", "13490"]
+    },
+    {
+      "id": "20888",
+      "label": "Jens Wannemaker",
+      "date": "26.09.2021",
+      "score": 0.47,
+      "importantNodes": ["96926", "81143", "13278"]
+    },
+    {
+      "id": "44206",
+      "label": "Lukas Beich",
+      "date": "12.10.2021",
+      "score": 0.24,
+      "importantNodes": ["97752"]
+    },
+    {
+      "id": "97752",
+      "label": "Anja Fruehauf",
+      "date": "12.12.2021",
+      "score": 0.74,
+      "importantNodes": []
+    },
+    {
+      "id": "70333",
+      "label": "Katja Propst",
+      "date": "22.12.2021",
+      "score": 0.99,
+      "importantNodes": []
+    }
+  ],
+  "edges": [
+    {
+      "target": "81143",
+      "source": "51217",
+      "value": "12345"
+    },
+    {
+      "target": "81143",
+      "source": "96926",
+      "value": "12345"
+
+    },
+    {
+      "target": "81143",
+      "source": "13490",
+      "value": "12345"
+
+    },
+    {
+      "target": "81143",
+      "source": "13278",
+      "value": "12345"
+
+    },
+    {
+      "target": "86581",
+      "source": "88803",
+      "value": "54321"
+
+    },
+    {
+      "target": "86581",
+      "source": "20888",
+      "value": "54321"
+
+    },
+    {
+      "target": "44206",
+      "source": "97752",
+      "value": "54321"
+    },
+    {
+      "target": "44206",
+      "source": "70333",
+      "value": "12345"
+
+    },
+    {
+      "target": "96926",
+      "source": "13278",
+      "value": "12345"
+
+    },
+    {
+      "target": "97752",
+      "source": "88803",
+      "value": "54321"
+    },
+    {
+      "target": "13278",
+      "source": "20888",
+      "value": "12345"
+
+    },
+    {
+      "target": "51217",
+      "source": "96926",
+      "value": "54321"
+    },
+    {
+      "target": "13490",
+      "source": "88803",
+      "value": "54321"
+    },
+    {
+      "target": "70333",
+      "source": "96926",
+      "value": "54321"
+    }
+  ]
+}
