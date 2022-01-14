@@ -29,17 +29,46 @@ class Graph extends Component<props> {
         if(this.props.graphDashboardStore?.mode){
             return 10 + node.score * 12;
         }
+        if(this.props.graphDashboardStore?.nodeRadiusType === 1){
+            return 10 + (node.schadenhoehe / 400);
+        }
+        if(this.props.graphDashboardStore?.nodeRadiusType === 2){
+            return 10 + (this.getNodeNeighborCount(node.id) * 4);
+        }
         return 10;
+    }
+
+    getNodeNeighborCount(nodeID: string){
+        let counter = 0;
+        edges.forEach((edge:Edge)=>{
+            if (typeof edge.source !== "string" && typeof edge.target !== "string") {
+                if (((edge.target.id === nodeID && !this.isNodeDisabled(edge.source.id)) || (edge.source.id === nodeID && !this.isNodeDisabled(edge.target.id))) && this.isEdgeActive(edge.value)) {
+                    counter++;
+                }
+            }
+        })
+        console.log(counter)
+        return counter;
     }
 
     isNodeDisabled(nodeID: string){
         return this.props.graphDashboardStore!.disabledNodes.indexOf(nodeID) != -1;
-
     }
 
     isNodeActive(nodeID: string){
+        let oneActiveEdge = true;
+        if(this.props.graphDashboardStore?.disabledEdges.length != 0){
+            oneActiveEdge = false;
+            edges.forEach((edge:Edge)=>{
+                if (typeof edge.source !== "string" && typeof edge.target !== "string") {
+                    if (((edge.target.id === nodeID && !this.isNodeDisabled(edge.source.id))|| (edge.source.id === nodeID && !this.isNodeDisabled(edge.target.id))) && this.isEdgeActive(edge.value)) {
+                        oneActiveEdge = true;
+                    }
+                }
+            })
+        }
         return (this.props.graphDashboardStore!.activeNodes.length === 0 || this.props.graphDashboardStore!.activeNodes!.indexOf(nodeID) > -1)
-            && !this.isNodeDisabled(nodeID);
+            && !this.isNodeDisabled(nodeID) && oneActiveEdge;
 
     }
 
@@ -97,9 +126,19 @@ class Graph extends Component<props> {
 
     // Edge functions
 
+    isEdgeDisabled(edgeID: string){
+        return this.props.graphDashboardStore!.disabledEdges.indexOf(edgeID) != -1;
+    }
+
+    isEdgeActive(edgeID: string){
+        return (this.props.graphDashboardStore!.activeEdges.length === 0 || this.props.graphDashboardStore!.activeEdges!.indexOf(edgeID) > -1)
+            && !this.isEdgeDisabled(edgeID);
+
+    }
+
     clickEdge(edgeID:string) {
         this.props.graphDashboardStore?.resetEdgeNodeSettings();
-        this.props.graphDashboardStore?.setClickedEdge(edgeID);
+        this.props.graphDashboardStore?.pushActiveEdge(edgeID);
         edges.map((edge) => {
             if (edge.value === edgeID && typeof edge.source !== "string" && typeof edge.target !== "string") {
                 this.props.graphDashboardStore?.pushActiveNode(edge.source.id);
@@ -110,13 +149,7 @@ class Graph extends Component<props> {
     }
 
     getEdgeColor(edge:Edge) {
-        let color = '246,174,45';
-        if (edge.value == "12345") {
-            color = '242,100,25'
-        }
-        if (this.props.graphDashboardStore?.activeNodes.length === 0 && this.props.graphDashboardStore?.disabledNodes.length === 0) {
-            return `rgba(${color}, 1)`
-        }
+        const color = this.props.graphDashboardStore?.edgeColors[edge.value]
         return this.isNeighborLink(edge) ? `rgba(${color}, 1)` : `rgba(${color},0.2)`
     }
 
@@ -136,11 +169,9 @@ class Graph extends Component<props> {
 
     isNeighborLink(edge: Edge) {
         let clickedNodes = this.props.graphDashboardStore?.clickedNodes!;
-        let clickedEdge = this.props.graphDashboardStore?.clickedEdge!;
         if(typeof edge.target !== "string" && typeof edge.source !== "string"){
-            return this.isNodeActive(edge.target.id) && this.isNodeActive(edge.source.id) && (clickedNodes.length === 0 ||
-                    (clickedNodes.indexOf(edge.target.id) > -1 || clickedNodes.indexOf(edge.source.id) > -1)) &&
-                    (clickedEdge === null || clickedEdge === edge.value);
+            return this.isNodeActive(edge.target.id) && this.isNodeActive(edge.source.id) && this.isEdgeActive(edge.value) && (clickedNodes.length === 0 ||
+                    (clickedNodes.indexOf(edge.target.id) > -1 || clickedNodes.indexOf(edge.source.id) > -1)) && this.isEdgeActive(edge.value);
         }
         return false;
     };
@@ -167,15 +198,22 @@ class Graph extends Component<props> {
             return this.isNodeHighlight(node.id) ? 3 : 0;
         })
         this.nodeElements.attr("r", (node:Node) => {
-                return this.getNodeRadius(node)
+            return this.getNodeRadius(node)
         })
-
         this.nodeElements.attr('fill', (node: Node) => {
             return this.getNodeColor(node.id)
         })
         this.textElements.attr('fill', (node: Node) => {
             return this.getTextColor(node.id)
+        }).attr("dx", (node: Node) => {
+            return 15 + this.getNodeRadius(node) / 2!
+        }).text((node: Node) => {
+            if(this.props.graphDashboardStore?.nodeLabelType === 0){
+                return node.id
+            }
+            return node.label
         })
+
         this.edgeElements.attr('stroke', (edge: Edge) => {
             return this.getEdgeColor(edge)
         })
@@ -188,14 +226,15 @@ class Graph extends Component<props> {
         let clickNodeProxy = (node:Node) => this.clickNode(node);
         let getNodeRadiusProxy = (node:Node) => this.getNodeRadius(node);
         let predictionMode = ()=>this.props.graphDashboardStore?.mode === 1;
+        let getNodeColorProxy = (nodeId:string)=> this.getNodeColor(nodeId)
 
         let width = 800;
         let height = 600;
         let svg = d3.select('#graph')
         svg.attr('width', width).attr('height', height).on('click', () => {
-            if (this.props.graphDashboardStore?.clickedNodes.length! > 0 || this.props.graphDashboardStore?.clickedEdge! != null || this.props.graphDashboardStore?.mode) {
+            if (this.props.graphDashboardStore?.clickedNodes.length! > 0 || this.props.graphDashboardStore?.mode || this.props.graphDashboardStore?.activeEdges!.length! > 0) {
                 this.resetClickNode()
-                this.props.graphDashboardStore?.setClickedEdge(null);
+                this.props.graphDashboardStore?.resetActiveEdges();
                 this.props.graphDashboardStore?.setHighlightNode(null);
                 this.redrawElements();
             }});
@@ -218,23 +257,23 @@ class Graph extends Component<props> {
 
         let dragDrop = d3.drag()
             .on('start', function(event, node:any) {
-            if (isNodeHighlightProxy(node.id)){
-                tooltipMouseleave(node);
-            }
-            node.fx = node.x;
-            node.fy = node.y;
-        }).on('drag', function(event, node:any) {
-            simulation.alphaTarget(0).restart()
-            node.fx = event.x
-            node.fy = event.y
-        }).on('end', function(event, node:any) {
-            if (isNodeHighlightProxy(node.id)) tooltipMouseover(node);
-            if (event.active) {
-                simulation.alphaTarget(0)
-            }
-            node.fx = null
-            node.fy = null
-        })
+                if (isNodeHighlightProxy(node.id)){
+                    tooltipMouseleave(node);
+                }
+                node.fx = node.x;
+                node.fy = node.y;
+            }).on('drag', function(event, node:any) {
+                simulation.alphaTarget(0).restart()
+                node.fx = event.x
+                node.fy = event.y
+            }).on('end', function(event, node:any) {
+                if (isNodeHighlightProxy(node.id)) tooltipMouseover(node);
+                if (event.active) {
+                    simulation.alphaTarget(0)
+                }
+                node.fx = null
+                node.fy = null
+            })
 
         this.edgeElements = svg.append("g")
             .attr("class", "links")
@@ -276,7 +315,9 @@ class Graph extends Component<props> {
             .attr("r", function(node:Node){
                 return getNodeRadiusProxy(node);
             })
-            .attr("fill", Colors.NODE_ACTIVE_COLOR)
+            .attr("fill", function(node:Node){
+                return getNodeColorProxy(node.id)
+            })
             .attr("stroke-width", 0)
             .attr("stroke", "#303030")
             // @ts-ignore
@@ -410,13 +451,16 @@ class Graph extends Component<props> {
     }
 
     componentDidUpdate() {
-        console.log("cool")
         this.redrawElements();
     }
 
     render(){
-        let store = this.props.graphDashboardStore?.mode
-        console.log(store)
+        let trigger = this.props.graphDashboardStore?.mode;
+        let trigger2 = this.props.graphDashboardStore?.activeEdges;
+        let trigger3 =this.props.graphDashboardStore?.disabledEdges;
+        let trigger4 =this.props.graphDashboardStore?.nodeLabelType;
+        let trigger5 =this.props.graphDashboardStore?.nodeRadiusType;
+        let trigger6 =this.props.graphDashboardStore?.disabledNodes;
         return <div id="graphBackground">
             <svg id="graph"/>
         </div>

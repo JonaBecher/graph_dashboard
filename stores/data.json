@@ -5,6 +5,7 @@
       "label": "Anja Schulz",
       "date": "12.01.2021",
       "score": 0.1,
+      "schadenhoehe": 1000,
       "importantNodes": ["13490", "88803", "96926"]
     },
     {
@@ -12,6 +13,7 @@
       "label": "Sven Dresner",
       "date": "12.02.2021",
       "score": 0.4,
+      "schadenhoehe": 2000,
       "importantNodes": ["81143", "96926", "13278"]
     },
     {
@@ -19,6 +21,7 @@
       "label": "Angelika Theiss",
       "date": "18.02.2021",
       "score": 0.6,
+      "schadenhoehe": 0,
       "importantNodes": ["51217", "70333"]
     },
     {
@@ -26,6 +29,7 @@
       "label": "Martin Zimmerman",
       "date": "01.03.2021",
       "score": 0.1,
+      "schadenhoehe": 499,
       "importantNodes": ["81143"]
     },
     {
@@ -33,6 +37,7 @@
       "label": "Leon Moench",
       "date": "05.08.2021",
       "score": 0.9,
+      "schadenhoehe": 0,
       "importantNodes": ["96926", "81143"]
     },
     {
@@ -40,6 +45,7 @@
       "label": "Sebastian Ebersbach",
       "date": "09.08.2021",
       "score": 0.65,
+      "schadenhoehe": 2000,
       "importantNodes": ["20888", "88803"]
     },
     {
@@ -47,6 +53,7 @@
       "label": "Matthias Schaefer",
       "date": "17.09.2021",
       "score": 0.1,
+      "schadenhoehe": 5999,
       "importantNodes": ["81143", "13490"]
     },
     {
@@ -54,6 +61,7 @@
       "label": "Jens Wannemaker",
       "date": "26.09.2021",
       "score": 0.47,
+      "schadenhoehe": 1233,
       "importantNodes": ["96926", "81143", "13278"]
     },
     {
@@ -61,6 +69,7 @@
       "label": "Lukas Beich",
       "date": "12.10.2021",
       "score": 0.24,
+      "schadenhoehe": 233,
       "importantNodes": ["97752"]
     },
     {
@@ -68,6 +77,7 @@
       "label": "Anja Fruehauf",
       "date": "12.12.2021",
       "score": 0.74,
+      "schadenhoehe": 4567,
       "importantNodes": []
     },
     {
@@ -75,6 +85,7 @@
       "label": "Katja Propst",
       "date": "22.12.2021",
       "score": 0.99,
+      "schadenhoehe": 233,
       "importantNodes": []
     }
   ],
@@ -82,7 +93,7 @@
     {
       "target": "81143",
       "source": "51217",
-      "value": "12345"
+      "value": "1234"
     },
     {
       "target": "81143",

@@ -6,8 +6,8 @@ import {observer} from "mobx-react-lite";
 import {GraphDashboardStore} from "../stores/GraphDashboardStore";
 
 const options = [
-    { id: 0, name: 'Analyse Ansicht' },
-    { id: 1, name: 'Vorhersage Ansicht' }
+    { id: 0, name: 'Schadennummer' },
+    { id: 1, name: 'Unfallverursacher' }
 ]
 
 type props = {
@@ -19,12 +19,12 @@ function classNames(...classes:any) {
     return classes.filter(Boolean).join(' ')
 }
 
-const Dropdown = inject("graphDashboardStore")(
+const dropDownNodeText = inject("graphDashboardStore")(
     observer((props: props) => {
     const [selected, setSelected] = useState(options[0])
 
     let setValue = (id:number)=>{
-        props.graphDashboardStore?.setPredictionMode(id);
+        props.graphDashboardStore?.setNodeLabelType(id);
     }
 
     return (
@@ -32,7 +32,7 @@ const Dropdown = inject("graphDashboardStore")(
             {({ open }) => (
                 <>
                     <div className="relative h-10 mt-4 ">
-                        <Listbox.Button className="bg-white relative w-80 border border-gray-300 rounded-md pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-gray-700 focus:border-gray-700">
+                        <Listbox.Button className="bg-white relative w-full border border-gray-300 rounded-md pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-gray-700 focus:border-gray-700">
                             <span className="block truncate">{selected.name}</span>
                             <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                 <SelectorIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
@@ -46,13 +46,13 @@ const Dropdown = inject("graphDashboardStore")(
                             leaveFrom="opacity-100"
                             leaveTo="opacity-0"
                         >
-                            <Listbox.Options className="absolute z-10 mt-1 w-80 bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none">
+                            <Listbox.Options className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none">
                                 {options.map((option) => (
                                     <Listbox.Option
                                         key={option.id}
                                         className={({ active }) =>
                                             classNames(
-                                                active ? 'text-white bg-indigo-600' : 'text-gray-900',
+                                                active ? 'text-white bg-gray-700' : 'text-gray-900',
                                                 'cursor-default select-none relative py-2 pl-3 pr-9'
                                             )
                                         }
@@ -67,7 +67,7 @@ const Dropdown = inject("graphDashboardStore")(
                                                 {selected ? (
                                                     <span
                                                         className={classNames(
-                                                            active ? 'text-white' : 'text-indigo-600',
+                                                            active ? 'text-white' : 'text-gray-600',
                                                             'absolute inset-y-0 right-0 flex items-center pr-4'
                                                         )}
                                                     >
@@ -87,4 +87,4 @@ const Dropdown = inject("graphDashboardStore")(
     )
 }))
 
-export default Dropdown;
+export default dropDownNodeText;
