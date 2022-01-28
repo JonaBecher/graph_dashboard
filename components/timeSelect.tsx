@@ -90,7 +90,7 @@ class TimeSelect extends Component<props> {
             weeks.forEach((week) => {
                 cal.selectAll()
                     // @ts-ignore
-                    .data([1], function(d) {
+                    .data([1], function(d:any) {
                         return d
                     })
                     .enter()
@@ -107,17 +107,17 @@ class TimeSelect extends Component<props> {
                     .attr("stroke", "white")
                     .attr("width", x.bandwidth() - 2)
                     .attr("height", y.bandwidth() - 2)
-                    .style("fill", "rgba(232,232,232,0.70)")
+                    .style("fill", "rgb(229,229,229)")
             });
         });
 
         this.dateElements = cal.selectAll()
-            .data(nodes.filter(()=>true), function(d:any) {
+            .data(nodes.filter((node)=>parseDate(node.date).getFullYear() == this.props.graphDashboardStore?.currentYear), function(d:any) {
                 let day = computeDate(parseDate(d.date));
                 let month = computeMonth(parseDate(d.date));
                 d.day = day;
                 d.month = month;
-                d.year = "2021"
+                d.year = parseDate(d.date).getFullYear();
                 return d
             })
             .enter()
@@ -144,6 +144,7 @@ class TimeSelect extends Component<props> {
     }
 
     redrawElements(){
+        this.componentDidMount();
         this.dateElements.attr('stroke', (date: any) => {
             if (date.date === this.props.graphDashboardStore?.selectedDate) return "#080808"
             return "white";
@@ -156,7 +157,18 @@ class TimeSelect extends Component<props> {
 
     render(){
         let trigger1 = this.props.graphDashboardStore?.selectedDate;
+        let trigger2 = this.props.graphDashboardStore?.currentYear;
         return <div>
+            <div className="flex flex-row-reverse items-center content-end -mt-8">
+                <div className="text-4xl text-slate-700 h-full -mt-2 pl-2  cursor-pointer" onClick={()=>{
+                    this.props.graphDashboardStore?.setCurrentYear( this.props.graphDashboardStore?.currentYear+1)
+                }
+                }>🢒</div>
+                {this.props.graphDashboardStore?.currentYear}
+                <div className="text-4xl text-slate-700 h-full -mt-2 pr-2  cursor-pointer"onClick={()=>{
+                    this.props.graphDashboardStore?.setCurrentYear( this.props.graphDashboardStore?.currentYear-1)
+                }}>{"🢐"}</div>
+            </div>
             <svg className="overflow-visible ml-2 text-slate-500 txt-sm" id="timeselect"/>
         </div>
     }

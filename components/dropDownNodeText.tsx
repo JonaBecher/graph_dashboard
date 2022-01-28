@@ -7,7 +7,7 @@ import {GraphDashboardStore} from "../stores/GraphDashboardStore";
 
 const options = [
     { id: 0, name: 'Schadennummer' },
-    { id: 1, name: 'Unfallverursacher' }
+    { id: 1, name: 'Kundenummer' }
 ]
 
 type props = {

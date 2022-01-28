@@ -247,7 +247,7 @@ class Graph extends Component<props> {
             })
         let simulation = d3.forceSimulation(nodes)
             .force('link', linkForce)
-            .force('charge', d3.forceManyBody().strength(-2800))
+            .force('charge', d3.forceManyBody().strength(-8000))
             .force('x', d3.forceX(width / 2).strength(0.3))
             .force('y', d3.forceY(height / 2).strength(0.3))
 
@@ -434,7 +434,7 @@ class Graph extends Component<props> {
                 .style("stroke", "black")
                 .style("opacity", 1)
                 .style("z-index", 10)
-                .html(`Schadenfall: ${node.id}  <br> Name: ${node.label} ${predictionMode()? ("<br> Score: " + node.score):""}`);
+                .html(`Schadenfall: ${node.id}  <br> KundenNr.: ${node.label} ${predictionMode()? ("<br> Score: " + node.score):""}`);
             Tooltip
                 // @ts-ignore
                 .style("left", ((node.x!) - (Tooltip._groups[0][0].offsetWidth / 2) + "px"))

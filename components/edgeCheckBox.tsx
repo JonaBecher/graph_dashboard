@@ -22,7 +22,7 @@ const EdgeCheckbox = inject("graphDashboardStore")(
 
         }
     return (
-        <div className="relative flex items-center align-middle h-5 w-5 mt-2"
+        <div className="relative flex items-center align-middle h-5 w-5 mt-2 min-w-full"
              onClick={()=>{
                      if (isEdgeActive(props.text)){
                          props.graphDashboardStore?.removeActiveEdge(props.text);

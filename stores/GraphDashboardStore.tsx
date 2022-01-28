@@ -2,7 +2,6 @@ import {action, makeObservable, observable} from "mobx";
 import {enableStaticRendering} from "mobx-react";
 import React from "react";
 import {GetColors} from "../helper/getColors";
-import EdgeCheckBox from "../components/edgeCheckBox";
 
 const isServer = typeof window === "undefined";
 
@@ -42,8 +41,8 @@ let edges:Edge[] = data.edges;
 export {edges};
 
 function parseDate(s:any) {
-    let p = s.split('.');
-    return new Date(p[2], parseInt(p[1]) - 1, p[0], 1);
+    let p = s.split('-');
+    return new Date(parseInt(p[0]), parseInt(p[1]) - 1, p[2], 1);
 }
 export {parseDate}
 
@@ -70,6 +69,13 @@ export class GraphDashboardStore {
     edgeColors:{ [Key: string] : string; } = {}
 
     edge_values:any = [];
+
+    @observable currentYear:number = 2021;
+
+    @action
+    setCurrentYear(currentYear:number){
+        this.currentYear = currentYear;
+    }
 
     @action
     setSelectedDate(selectedDate:string){
