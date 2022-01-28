@@ -247,7 +247,7 @@ class Graph extends Component<props> {
             })
         let simulation = d3.forceSimulation(nodes)
             .force('link', linkForce)
-            .force('charge', d3.forceManyBody().strength(-8000))
+            .force('charge', d3.forceManyBody().strength(-2000))
             .force('x', d3.forceX(width / 2).strength(0.3))
             .force('y', d3.forceY(height / 2).strength(0.3))
 
