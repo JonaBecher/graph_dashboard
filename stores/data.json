@@ -1,0 +1,172 @@
+{
+  "nodes": [
+    {
+      "id": "81143",
+      "label": "Anja Schulz",
+      "date": "2021-01-11",
+      "score": 0.1,
+      "schadenhoehe": 1000,
+      "importantNodes": ["13490", "88803", "96926"]
+    },
+    {
+      "id": "51217",
+      "label": "Sven Dresner",
+      "date": "2021-02-12",
+      "score": 0.4,
+      "schadenhoehe": 2000,
+      "importantNodes": ["81143", "96926", "13278"]
+    },
+    {
+      "id": "96926",
+      "label": "Angelika Theiss",
+      "date": "2021-02-18",
+      "score": 0.6,
+      "schadenhoehe": 0,
+      "importantNodes": ["51217", "70333"]
+    },
+    {
+      "id": "13490",
+      "label": "Martin Zimmerman",
+      "date": "2021-03-01",
+      "score": 0.1,
+      "schadenhoehe": 499,
+      "importantNodes": ["81143"]
+    },
+    {
+      "id": "13278",
+      "label": "Leon Moench",
+      "date": "2021-08-05",
+      "score": 0.9,
+      "schadenhoehe": 0,
+      "importantNodes": ["96926", "81143"]
+    },
+    {
+      "id": "86581",
+      "label": "Sebastian Ebersbach",
+      "date": "2021-08-09",
+      "score": 0.65,
+      "schadenhoehe": 2000,
+      "importantNodes": ["20888", "88803"]
+    },
+    {
+      "id": "88803",
+      "label": "Matthias Schaefer",
+      "date": "2021-09-17",
+      "score": 0.1,
+      "schadenhoehe": 5999,
+      "importantNodes": ["81143", "13490"]
+    },
+    {
+      "id": "20888",
+      "label": "Jens Wannemaker",
+      "date": "2021-09-26",
+      "score": 0.47,
+      "schadenhoehe": 1233,
+      "importantNodes": ["96926", "81143", "13278"]
+    },
+    {
+      "id": "44206",
+      "label": "Lukas Beich",
+      "date": "2021-10-12",
+      "score": 0.24,
+      "schadenhoehe": 233,
+      "importantNodes": ["97752"]
+    },
+    {
+      "id": "97752",
+      "label": "Anja Fruehauf",
+      "date": "2021-12-12",
+      "score": 0.74,
+      "schadenhoehe": 4567,
+      "importantNodes": []
+    },
+    {
+      "id": "70333",
+      "label": "Katja Propst",
+      "date": "2021-12-22",
+      "score": 0.99,
+      "schadenhoehe": 233,
+      "importantNodes": []
+    }
+  ],
+  "edges": [
+    {
+      "target": "81143",
+      "source": "51217",
+      "value": "1234"
+    },
+    {
+      "target": "81143",
+      "source": "96926",
+      "value": "12345"
+
+    },
+    {
+      "target": "81143",
+      "source": "13490",
+      "value": "12345"
+
+    },
+    {
+      "target": "81143",
+      "source": "13278",
+      "value": "12345"
+
+    },
+    {
+      "target": "86581",
+      "source": "88803",
+      "value": "54321"
+
+    },
+    {
+      "target": "86581",
+      "source": "20888",
+      "value": "54321"
+
+    },
+    {
+      "target": "44206",
+      "source": "97752",
+      "value": "54321"
+    },
+    {
+      "target": "44206",
+      "source": "70333",
+      "value": "12345"
+
+    },
+    {
+      "target": "96926",
+      "source": "13278",
+      "value": "12345"
+
+    },
+    {
+      "target": "97752",
+      "source": "88803",
+      "value": "54321"
+    },
+    {
+      "target": "13278",
+      "source": "20888",
+      "value": "12345"
+
+    },
+    {
+      "target": "51217",
+      "source": "96926",
+      "value": "54321"
+    },
+    {
+      "target": "13490",
+      "source": "88803",
+      "value": "54321"
+    },
+    {
+      "target": "70333",
+      "source": "96926",
+      "value": "54321"
+    }
+  ]
+}
